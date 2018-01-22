@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -11,18 +12,26 @@ namespace ConsoleTests
     {
         static void Main(string[] args)
         {
-            Configurator config = new XmlConfig();
+            Configurator config;
 
-            using (IConfigReader reader = config.Create())
+            string enviroment = ConfigurationManager.AppSettings["Enviroment"];
+
+            if (enviroment.Equals("Dev"))
             {
-                Console.WriteLine(reader.Read("second"));
-
-                reader.Write("second", "second");
-
-                Console.WriteLine(reader.Read("second"));
+                config = new XmlConfig();
             }
+            else if (enviroment.Equals("Prod"))
+            {
+         
+                config = new DbConfig();
+            }
+            else
+            {
+                Console.WriteLine("No such value found in AppSettings");
+                Console.ReadKey();
 
-            config = new DbConfig();
+                return;
+            }
 
             using (IConfigReader reader = config.Create())
             {
